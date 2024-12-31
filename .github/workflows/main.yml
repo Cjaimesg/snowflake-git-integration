@@ -77,7 +77,6 @@ jobs:
           SNOWFLAKE_CONNECTIONS_DATABASE: ${{ secrets.SNOWFLAKE_CONNECTIONS_DATABASE }}
           SNOWFLAKE_CONNECTIONS_SCHEMA: ${{ secrets.SNOWFLAKE_CONNECTIONS_SCHEMA }}
         run: |
-
           # Actualizar repositorio en Snowflake 
           echo "Fetching repository to Snowflake"
           snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH" \
