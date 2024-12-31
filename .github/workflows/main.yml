@@ -101,7 +101,15 @@ jobs:
           SNOWFLAKE_CONNECTIONS_DATABASE: ${{ secrets.SNOWFLAKE_CONNECTIONS_DATABASE }}
           SNOWFLAKE_CONNECTIONS_SCHEMA: ${{ secrets.SNOWFLAKE_CONNECTIONS_SCHEMA }}
         run: |
-          snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH" --temporary-connection --account $SNOWFLAKE_CONNECTIONS_ACCOUNT --user $SNOWFLAKE_CONNECTIONS_USER --password $SNOWFLAKE_CONNECTION_PASSWORD --role "$SNOWFLAKE_CONNECTIONS_ROLES" --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE --database $SNOWFLAKE_CONNECTIONS_DATABASE --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
+          snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH"
+            --temporary-connection \
+            --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
+            --user $SNOWFLAKE_CONNECTIONS_USER \
+            --password $SNOWFLAKE_CONNECTION_PASSWORD \
+            --role "$SNOWFLAKE_CONNECTIONS_ROLES" \
+            --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE \
+            --database $SNOWFLAKE_CONNECTIONS_DATABASE \
+            --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
  
           snow sql -q "EXECUTE IMMEDIATE FROM @snowflake_extensions/branches/main/demo_project/sf_deploy_tst.sql" --temporary-connection --account $SNOWFLAKE_CONNECTIONS_ACCOUNT --user $SNOWFLAKE_CONNECTIONS_USER --password $SNOWFLAKE_CONNECTION_PASSWORD --role "$SNOWFLAKE_CONNECTIONS_ROLES" --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE --database $SNOWFLAKE_CONNECTIONS_DATABASE --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
  
