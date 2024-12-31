@@ -66,7 +66,7 @@ jobs:
         shell: bash
  
       # ============ DEV ============
-      name: Deploy Snowflake objects to DEV
+      - name: Deploy Snowflake objects to DEV
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'DEV') }}
         env:
           SNOWFLAKE_CONNECTIONS_ACCOUNT: ${{ secrets.SNOWFLAKE_CONNECTIONS_ACCOUNT }}
