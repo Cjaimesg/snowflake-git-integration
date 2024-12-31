@@ -64,7 +64,7 @@ jobs:
         run: |
           # Actualizar repositorio en Snowflake 
           echo "Fetching repository to Snowflake"
-          snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH"
+          snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH" \
             --temporary-connection \
             --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
             --user $SNOWFLAKE_CONNECTIONS_USER \
