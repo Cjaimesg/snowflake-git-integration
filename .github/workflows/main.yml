@@ -58,19 +58,35 @@ jobs:
           SNOWFLAKE_CONNECTIONS_USER: ${{ secrets.SNOWFLAKE_CONNECTIONS_USER }}
           SNOWFLAKE_CONNECTION_PASSWORD: ${{ secrets.SNOWFLAKE_CONNECTION_PASSWORD }}
           SNOWFLAKE_CONNECTIONS_ROLES: ${{ secrets.SNOWFLAKE_CONNECTIONS_ROLES }}
-          SNOWFLAKE_CONNECTION_WAREHOUSE: ${{ secrets.SNOWFLAKE_CONNECTIONS_WAREHOUSE }}
+          SNOWFLAKE_CONNECTION_WAREHOUSE: ${{ secrets.SNOWFLAKE_CONNECTION_WAREHOUSE }}
           SNOWFLAKE_CONNECTIONS_DATABASE: ${{ secrets.SNOWFLAKE_CONNECTIONS_DATABASE }}
           SNOWFLAKE_CONNECTIONS_SCHEMA: ${{ secrets.SNOWFLAKE_CONNECTIONS_SCHEMA }}
         run: |
           # Actualizar repositorio en Snowflake 
           echo "Fetching repository to Snowflake"
-          snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH" --temporary-connection --account $SNOWFLAKE_CONNECTIONS_ACCOUNT --user $SNOWFLAKE_CONNECTIONS_USER --password $SNOWFLAKE_CONNECTION_PASSWORD --role $SNOWFLAKE_CONNECTIONS_ROLES --warehouse $SNOWFLAKE_CONNECTIONS_WAREHOUSE --database $SNOWFLAKE_CONNECTIONS_DATABASE --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
+          snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH"
+            --temporary-connection \
+            --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
+            --user $SNOWFLAKE_CONNECTIONS_USER \
+            --password $SNOWFLAKE_CONNECTION_PASSWORD \
+            --role $SNOWFLAKE_CONNECTIONS_ROLES \
+            --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE \
+            --database $SNOWFLAKE_CONNECTIONS_DATABASE \
+            --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
 
           # Obtener archivos modificados con extensión .sql
           modified_files=$(git diff --name-only HEAD^ HEAD | grep '\.sql$')
           # Iterar sobre los archivos y ejecutar el comando por cada uno
           for file in $modified_files; do
-            snow sql -q "EXECUTE IMMEDIATE FROM @snowflake_extensions/branches/main/$file" --temporary-connection --account $SNOWFLAKE_CONNECTIONS_ACCOUNT --user $SNOWFLAKE_CONNECTIONS_USER --password $SNOWFLAKE_CONNECTION_PASSWORD --role $SNOWFLAKE_CONNECTIONS_ROLES --warehouse $SNOWFLAKE_CONNECTIONS_WAREHOUSE --database $SNOWFLAKE_CONNECTIONS_DATABASE --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
+            snow sql -q "EXECUTE IMMEDIATE FROM @snowflake_extensions/branches/main/$file" \
+              --temporary-connection \
+              --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
+              --user $SNOWFLAKE_CONNECTIONS_USER \
+              --password $SNOWFLAKE_CONNECTION_PASSWORD \
+              --role $SNOWFLAKE_CONNECTIONS_ROLES \
+              --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE \
+              --database $SNOWFLAKE_CONNECTIONS_DATABASE \
+              --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
           done
  
       # ============ TEST ============
