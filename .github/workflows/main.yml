@@ -39,6 +39,14 @@ jobs:
         with:
           cli-version: "latest"
           default-config-file-path: "config.toml"
+      
+      # Obtener solo los archivos modificados con extensión .sql
+      - name: Get modified files
+        id: get_files
+        run: |
+          # Obtener solo los archivos modificados con extensión .sql
+          git diff --name-only HEAD^ HEAD | grep '\.sql$' > modified_files.txt || true
+          cat modified_files.txt
  
       # ============ DEV ============
       - name: Deploy Snowflake objects to DEV
