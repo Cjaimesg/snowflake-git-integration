@@ -75,7 +75,7 @@ jobs:
             --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
 
           # Obtener archivos modificados con extensión .sql
-          modified_files=$(git diff --name-only HEAD^ HEAD | grep '\.sql$')
+          # modified_files=$(git diff --name-only HEAD^ HEAD | grep '\.sql$')
           # Iterar sobre los archivos y ejecutar el comando por cada uno
           for file in $modified_files; do
             snow sql -q "EXECUTE IMMEDIATE FROM @snowflake_extensions/branches/main/$file USING (ENV => 'DEV')" \
@@ -86,7 +86,8 @@ jobs:
               --role $SNOWFLAKE_CONNECTIONS_ROLES \
               --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE \
               --database $SNOWFLAKE_CONNECTIONS_DATABASE \
-              --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
+              --schema $SNOWFLAKE_CONNECTIONS_SCHEMA \
+              --query_tags Test
           done
  
       # ============ TEST ============
