@@ -4,7 +4,7 @@ LANGUAGE JAVASCRIPT
 AS
 $$
 try {
-    var sql_command = `CREATE TABLE Bronze_Customer_Orders AS
+    var sql_command = `CREATE OR REPLACE TABLE Bronze_Customer_Orders AS
                        SELECT c.customer_id,
                               c.name AS customer_name,
                               o.order_id,
