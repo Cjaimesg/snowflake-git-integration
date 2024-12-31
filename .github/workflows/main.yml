@@ -78,7 +78,7 @@ jobs:
           modified_files=$(git diff --name-only HEAD^ HEAD | grep '\.sql$')
           # Iterar sobre los archivos y ejecutar el comando por cada uno
           for file in $modified_files; do
-            snow sql -q "EXECUTE IMMEDIATE FROM @snowflake_extensions/branches/main/$file" \
+            snow sql -q "EXECUTE IMMEDIATE FROM @snowflake_extensions/branches/main/$file USING (ENV => 'DEV')" \
               --temporary-connection \
               --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
               --user $SNOWFLAKE_CONNECTIONS_USER \
