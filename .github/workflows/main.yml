@@ -101,7 +101,7 @@ jobs:
           SNOWFLAKE_CONNECTIONS_DATABASE: ${{ secrets.SNOWFLAKE_CONNECTIONS_DATABASE }}
           SNOWFLAKE_CONNECTIONS_SCHEMA: ${{ secrets.SNOWFLAKE_CONNECTIONS_SCHEMA }}
         run: |
-          snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH"
+          snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH" \
             --temporary-connection \
             --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
             --user $SNOWFLAKE_CONNECTIONS_USER \
