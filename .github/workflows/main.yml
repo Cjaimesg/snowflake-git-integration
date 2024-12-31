@@ -1,0 +1,89 @@
+name: snowflake_cicd_pipeline
+ 
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'demo_project/**'
+ 
+  # Allows us to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: 'Select environment'
+        required: true
+        default: 'DEV'
+        options:
+          - DEV
+          - TST
+          - PRD
+ 
+permissions:
+      id-token: write
+      contents: read
+ 
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      # Checks-out repository under $GITHUB_WORKSPACE, so our job can access it
+      - name: Checkout repository
+        uses: actions/checkout@v3
+ 
+      # From: https://github.com/Snowflake-Labs/snowflake-cli-action
+      - name: Snowflake CLI Installation
+        uses: Snowflake-Labs/snowflake-cli-action@v1
+        with:
+          cli-version: "latest"
+          default-config-file-path: "config.toml"
+ 
+      # ============ DEV ============
+      - name: Deploy Snowflake objects to DEV
+        if: ${{ github.event.inputs.environment == 'DEV' }}
+        env:
+          SNOWFLAKE_CONNECTIONS_ACCOUNT: ${{ secrets.SNOWFLAKE_CONNECTIONS_ACCOUNT }}
+          SNOWFLAKE_CONNECTIONS_USER: ${{ secrets.SNOWFLAKE_CONNECTIONS_USER }}
+          SNOWFLAKE_CONNECTION_PASSWORD: ${{ secrets.SNOWFLAKE_CONNECTION_PASSWORD }}
+          SNOWFLAKE_CONNECTIONS_ROLES: ${{ secrets.SNOWFLAKE_CONNECTIONS_ROLES }}
+          SNOWFLAKE_CONNECTION_WAREHOUSE: ${{ secrets.SNOWFLAKE_CONNECTION_WAREHOUSE }}
+          SNOWFLAKE_CONNECTIONS_DATABASE: ${{ secrets.SNOWFLAKE_CONNECTIONS_DATABASE }}
+          SNOWFLAKE_CONNECTIONS_SCHEMA: ${{ secrets.SNOWFLAKE_CONNECTIONS_SCHEMA }}
+        run: |
+          snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH" --temporary-connection --account $SNOWFLAKE_CONNECTIONS_ACCOUNT --user $SNOWFLAKE_CONNECTIONS_USER --password $SNOWFLAKE_CONNECTION_PASSWORD --role "$SNOWFLAKE_CONNECTIONS_ROLES" --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE --database $SNOWFLAKE_CONNECTIONS_DATABASE --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
+ 
+          snow sql -q "EXECUTE IMMEDIATE FROM @snowflake_extensions/branches/main/demo_project/sf_deploy_dev.sql" --temporary-connection --account $SNOWFLAKE_CONNECTIONS_ACCOUNT --user $SNOWFLAKE_CONNECTIONS_USER --password $SNOWFLAKE_CONNECTION_PASSWORD --role "$SNOWFLAKE_CONNECTIONS_ROLES" --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE --database $SNOWFLAKE_CONNECTIONS_DATABASE --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
+
+      # ============ TEST ============
+      - name: Deploy Snowflake objects to TST
+        if: ${{ github.event.inputs.environment == 'TST' }}
+        env:
+          SNOWFLAKE_CONNECTIONS_ACCOUNT: ${{ secrets.SNOWFLAKE_CONNECTIONS_ACCOUNT }}
+          SNOWFLAKE_CONNECTIONS_USER: ${{ secrets.SNOWFLAKE_CONNECTIONS_USER }}
+          SNOWFLAKE_CONNECTION_PASSWORD: ${{ secrets.SNOWFLAKE_CONNECTION_PASSWORD }}
+          SNOWFLAKE_CONNECTIONS_ROLES: ${{ secrets.SNOWFLAKE_CONNECTIONS_ROLES }}
+          SNOWFLAKE_CONNECTION_WAREHOUSE: ${{ secrets.SNOWFLAKE_CONNECTION_WAREHOUSE }}
+          SNOWFLAKE_CONNECTIONS_DATABASE: ${{ secrets.SNOWFLAKE_CONNECTIONS_DATABASE }}
+          SNOWFLAKE_CONNECTIONS_SCHEMA: ${{ secrets.SNOWFLAKE_CONNECTIONS_SCHEMA }}
+        run: |
+          snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH" --temporary-connection --account $SNOWFLAKE_CONNECTIONS_ACCOUNT --user $SNOWFLAKE_CONNECTIONS_USER --password $SNOWFLAKE_CONNECTION_PASSWORD --role "$SNOWFLAKE_CONNECTIONS_ROLES" --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE --database $SNOWFLAKE_CONNECTIONS_DATABASE --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
+ 
+          snow sql -q "EXECUTE IMMEDIATE FROM @snowflake_extensions/branches/main/demo_project/sf_deploy_tst.sql" --temporary-connection --account $SNOWFLAKE_CONNECTIONS_ACCOUNT --user $SNOWFLAKE_CONNECTIONS_USER --password $SNOWFLAKE_CONNECTION_PASSWORD --role "$SNOWFLAKE_CONNECTIONS_ROLES" --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE --database $SNOWFLAKE_CONNECTIONS_DATABASE --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
+
+      # ============ PROD ============
+      - name: Deploy Snowflake objects to PRD
+        if: ${{ github.event.inputs.environment == 'PRD' }}
+        env:
+          SNOWFLAKE_CONNECTIONS_ACCOUNT: ${{ secrets.SNOWFLAKE_CONNECTIONS_ACCOUNT }}
+          SNOWFLAKE_CONNECTIONS_USER: ${{ secrets.SNOWFLAKE_CONNECTIONS_USER }}
+          SNOWFLAKE_CONNECTION_PASSWORD: ${{ secrets.SNOWFLAKE_CONNECTION_PASSWORD }}
+          SNOWFLAKE_CONNECTIONS_ROLES: ${{ secrets.SNOWFLAKE_CONNECTIONS_ROLES }}
+          SNOWFLAKE_CONNECTION_WAREHOUSE: ${{ secrets.SNOWFLAKE_CONNECTION_WAREHOUSE }}
+          SNOWFLAKE_CONNECTIONS_DATABASE: ${{ secrets.SNOWFLAKE_CONNECTIONS_DATABASE }}
+          SNOWFLAKE_CONNECTIONS_SCHEMA: ${{ secrets.SNOWFLAKE_CONNECTIONS_SCHEMA }}
+        run: |
+          snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH" --temporary-connection --account $SNOWFLAKE_CONNECTIONS_ACCOUNT --user $SNOWFLAKE_CONNECTIONS_USER --password $SNOWFLAKE_CONNECTION_PASSWORD --role "$SNOWFLAKE_CONNECTIONS_ROLES" --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE --database $SNOWFLAKE_CONNECTIONS_DATABASE --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
+ 
+          snow sql -q "EXECUTE IMMEDIATE FROM @snowflake_extensions/branches/main/demo_project/sf_deploy_prd.sql" --temporary-connection --account $SNOWFLAKE_CONNECTIONS_ACCOUNT --user $SNOWFLAKE_CONNECTIONS_USER --password $SNOWFLAKE_CONNECTION_PASSWORD --role "$SNOWFLAKE_CONNECTIONS_ROLES" --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE --database $SNOWFLAKE_CONNECTIONS_DATABASE --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
