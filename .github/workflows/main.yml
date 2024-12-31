@@ -65,6 +65,17 @@ jobs:
         run: |
           # Actualizar repositorio en Snowflake 
           echo "Fetching repository to Snowflake"
+          snow sql -q "ALTER SESSION SET QUERY_TAG = 'BUILD_TAG'" \
+            --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
+            --user $SNOWFLAKE_CONNECTIONS_USER \
+            --password $SNOWFLAKE_CONNECTION_PASSWORD \
+            --role $SNOWFLAKE_CONNECTIONS_ROLES \
+            --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE \
+            --database $SNOWFLAKE_CONNECTIONS_DATABASE \
+            --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
+
+          # Actualizar repositorio en Snowflake 
+          echo "Fetching repository to Snowflake"
           snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH" \
             --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
             --user $SNOWFLAKE_CONNECTIONS_USER \
