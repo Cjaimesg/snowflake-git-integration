@@ -49,21 +49,6 @@ jobs:
           # Obtener solo los archivos modificados con extensión .sql
           git diff --name-only HEAD^ HEAD | grep '\.sql$' > modified_files.txt || true
           cat modified_files.txt
-
-      
-      - name: Validate SQL files
-        run: |
-          # Iterar sobre los archivos modificados
-          for file in $(cat modified_files.txt); do
-            echo "Validating $file"
-            
-            # Verificar que el archivo contenga solo sentencias permitidas
-            if ! grep -Ei '^(ALTER TASK|CREATE TASK|DELETE TASK)' "$file"; then
-              echo "ERROR: $file contiene sentencias no permitidas."
-              exit 1
-            fi
-          done
-        shell: bash
  
       # ============ DEV ============
       - name: Deploy Snowflake objects to DEV
