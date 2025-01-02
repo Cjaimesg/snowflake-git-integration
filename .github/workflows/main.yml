@@ -66,6 +66,7 @@ jobs:
           # Actualizar repositorio en Snowflake 
           echo "Fetching repository to Snowflake"
           snow sql -q "ALTER SESSION SET QUERY_TAG = 'BUILD_TAG'" \
+            --temporary-connection \
             --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
             --user $SNOWFLAKE_CONNECTIONS_USER \
             --password $SNOWFLAKE_CONNECTION_PASSWORD \
@@ -77,6 +78,7 @@ jobs:
           # Actualizar repositorio en Snowflake 
           echo "Fetching repository to Snowflake"
           snow sql -q "ALTER GIT REPOSITORY snowflake_extensions FETCH" \
+            --temporary-connection \
             --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
             --user $SNOWFLAKE_CONNECTIONS_USER \
             --password $SNOWFLAKE_CONNECTION_PASSWORD \
@@ -90,6 +92,7 @@ jobs:
           # Iterar sobre los archivos y ejecutar el comando por cada uno
           for file in ${{ env.files }}; do
             snow sql -q "EXECUTE IMMEDIATE FROM @snowflake_extensions/branches/main/$file USING (ENV => 'DEV')" \
+              --temporary-connection \
               --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
               --user $SNOWFLAKE_CONNECTIONS_USER \
               --password $SNOWFLAKE_CONNECTION_PASSWORD \
