@@ -99,8 +99,7 @@ jobs:
               --role $SNOWFLAKE_CONNECTIONS_ROLES \
               --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE \
               --database $SNOWFLAKE_CONNECTIONS_DATABASE \
-              --schema $SNOWFLAKE_CONNECTIONS_SCHEMA \
-              --query_tags Test
+              --schema $SNOWFLAKE_CONNECTIONS_SCHEMA
           done
  
       # ============ TEST ============
