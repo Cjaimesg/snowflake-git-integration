@@ -1,0 +1,28 @@
+name: Verificar cambios en carpeta 'domains'
+
+on:
+  push:
+
+jobs:
+  verificar-domains:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v3
+
+      - name: Obtener archivos modificados
+        id: cambios
+        run: |
+          git fetch origin ${{ github.event.before }} --depth=1
+          ARCHIVOS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          echo "$ARCHIVOS" > archivos.txt
+          echo "archivos=$ARCHIVOS" >> $GITHUB_OUTPUT
+
+      - name: Validar que los archivos estén en 'domains/'
+        run: |
+          if grep -v '^domains/' archivos.txt; then
+            echo "Se encontraron archivos modificados fuera de la carpeta 'domains'."
+            exit 1
+          else
+            echo "Todos los archivos modificados están dentro de 'domains/'."
+          fi
