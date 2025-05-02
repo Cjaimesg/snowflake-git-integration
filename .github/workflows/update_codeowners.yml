@@ -1,0 +1,36 @@
+name: Actualizar CODEOWNERS con SSH
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  actualizar-codeowners:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configurar clave SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Clonar repositorio por SSH
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git clone git@github.com:<org>/<repo>.git repo
+          cd repo
+
+          # Generar CODEOWNERS dinámicamente aquí
+          echo "backend/ @Cjaimesg" > .github/CODEOWNERS
+          echo "frontend/ @otro-usuario" >> .github/CODEOWNERS
+
+          git add .github/CODEOWNERS
+          if git diff --cached --quiet; then
+            echo "Sin cambios"
+          else
+            git commit -m "Actualizar CODEOWNERS vía SSH"
+            git push origin main
+          fi
