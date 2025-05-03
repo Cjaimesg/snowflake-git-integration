@@ -42,18 +42,12 @@ jobs:
             --schema $SNOWFLAKE_CONNECTIONS_SCHEMA \
             --format JSON > resultado_git_users.json
 
-        - name: Debug: ver los primeros 5 líneas del JSON
+      - name: debug
         run: |
-          head -n 10 resultado_git_users.json
-          echo "Root type: $(jq -r 'type' resultado_git_users.json 2>/dev/null || echo "n/a")"
-
-
-#          jq -r '.[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' resultado_git_users.json > .github/CODEOWNERS
-            
-#      - name: Generar CODEOWNERS dinámico
-#        run: |
-#          echo "backend/ @Cjaimesg" > .github/CODEOWNERS
-#          echo "frontend/ @otro-usuario" >> .github/CODEOWNERS
+          cat resultado_git_users.json
+          echo "-----------------"
+          jq -r '.[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' resultado_git_users.json
+          echo "-----------------"
 
       - name: Commit & Push si hay cambios
         run: |
