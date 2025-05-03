@@ -14,13 +14,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      # Instalación de Snowflake CLI
-      - name: Snowflake CLI Installation
-        uses: Snowflake-Labs/snowflake-cli-action@v1.5
-        with:
-          cli-version: "latest"
-          default-config-file-path: "config.toml"
-
       - name: Obtener la lista de colaboradores
         env:
           SNOWFLAKE_CONNECTIONS_ACCOUNT: ${{ secrets.SNOWFLAKE_CONNECTIONS_ACCOUNT }}
@@ -31,7 +24,8 @@ jobs:
           SNOWFLAKE_CONNECTIONS_DATABASE: ${{ secrets.SNOWFLAKE_CONNECTIONS_DATABASE }}
           SNOWFLAKE_CONNECTIONS_SCHEMA: ${{ secrets.SNOWFLAKE_CONNECTIONS_SCHEMA }}
         run: |
-          snow sql --temporary-connection \
+          snow sql -q "SELECT FOLDER_CODEOWNER, USER_GITHUB_NAME FROM GIT_USERS" \ 
+            --temporary-connection \
             --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
             --user $SNOWFLAKE_CONNECTIONS_USER \
             --password $SNOWFLAKE_CONNECTION_PASSWORD \
@@ -39,20 +33,13 @@ jobs:
             --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE \
             --database $SNOWFLAKE_CONNECTIONS_DATABASE \
             --schema $SNOWFLAKE_CONNECTIONS_SCHEMA \
-            -q "SELECT FOLDER_CODEOWNER, USER_GITHUB_NAME FROM GIT_USERS" \
-            > git_users.json
-
-          echo "# AUTO-GENERATED CODEOWNERS — NO EDITAR MANUALMENTE" > .github/CODEOWNERS
-
-          # Parsear con jq y añadir cada línea "ruta @usuario"
-          jq -r '.data[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' git_users.json \
-            >> .github/CODEOWNERS
+            --format JSON | \
+            jq -r '.[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' > .github/CODEOWNERS
             
-
-#     - name: Generar CODEOWNERS dinámico
-#       run: |
-#         echo "backend/ @Cjaimesg" > .github/CODEOWNERS
-#         echo "frontend/ @otro-usuario" >> .github/CODEOWNERS
+#      - name: Generar CODEOWNERS dinámico
+#        run: |
+#          echo "backend/ @Cjaimesg" > .github/CODEOWNERS
+#          echo "frontend/ @otro-usuario" >> .github/CODEOWNERS
 
       - name: Commit & Push si hay cambios
         run: |
