@@ -47,24 +47,13 @@ jobs:
         run: |
           jq -r '.[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' resultado_git_users.json > .github/CODEOWNERS
 
-      - name: Commit & Push si hay cambios
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add .github/CODEOWNERS
-          if git diff --cached --quiet; then
-            echo "Sin cambios en CODEOWNERS"
-          else
-            git commit -m "Actualizar CODEOWNERS vía Actions"
-            git push
-          fi
-
       - name: Configurar clave SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts
+
       - name: Clonar repositorio por SSH
         run: |
           git config --global user.name "github-actions"
