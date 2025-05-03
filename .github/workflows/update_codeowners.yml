@@ -43,9 +43,6 @@ jobs:
             --silent \
             --format JSON > resultado_git_users.json
 
-      - name: Actualizar CODEOWNERS
-        run: |
-          jq -r '.[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' resultado_git_users.json > .github/CODEOWNERS
 
       - name: Configurar clave SSH
         run: |
@@ -61,10 +58,15 @@ jobs:
           git clone git@github.com:Cjaimesg/snowflake-git-integration.git repo
           cd repo
 
+      - name: Actualizar CODEOWNERS
+        run: |
+          jq -r '.[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' resultado_git_users.json > .github/CODEOWNERS
+
           git add .github/CODEOWNERS
               if git diff --cached --quiet; then
                 echo "Sin cambios"
               else
                 git commit -m "Actualizar CODEOWNERS vía SSH"
                 git push origin main
+                cat .github/CODEOWNERS
               fi
