@@ -41,7 +41,10 @@ jobs:
             --database $SNOWFLAKE_CONNECTIONS_DATABASE \
             --schema $SNOWFLAKE_CONNECTIONS_SCHEMA \
             --silent \
-            --format JSON | jq -r '.[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' > .github/CODEOWNERS
+            --format JSON > resultado_git_users.json
+
+            jq -r '.[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' resultado_git_users.json > .github/CODEOWNERS
+
             
 #      - name: Generar CODEOWNERS dinámico
 #        run: |
