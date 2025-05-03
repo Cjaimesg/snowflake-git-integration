@@ -59,7 +59,7 @@ jobs:
             --temporary-connection \
             --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
             --user $SNOWFLAKE_CONNECTIONS_USER \
-            --password $SNOWFLAKE_CONNECTIONS_PASSWORD \
+            --password $SNOWFLAKE_CONNECTION_PASSWORD \
             --role $SNOWFLAKE_CONNECTIONS_ROLES \
             --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE \
             --database $SNOWFLAKE_CONNECTIONS_DATABASE \
