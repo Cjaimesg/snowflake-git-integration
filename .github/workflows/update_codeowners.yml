@@ -43,7 +43,6 @@ jobs:
             --format JSON > resultado_git_users.json
 
           jq -r '.[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' resultado_git_users.json > .github/CODEOWNERS
-
             
 #      - name: Generar CODEOWNERS dinámico
 #        run: |
