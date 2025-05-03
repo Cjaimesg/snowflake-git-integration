@@ -36,11 +36,10 @@ jobs:
             --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
             --user $SNOWFLAKE_CONNECTIONS_USER \
             --password $SNOWFLAKE_CONNECTION_PASSWORD \
-            --role "$SNOWFLAKE_CONNECTIONS_ROLES" \
+            --role $SNOWFLAKE_CONNECTIONS_ROLES \
             --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE \
             --database $SNOWFLAKE_CONNECTIONS_DATABASE \
             --schema $SNOWFLAKE_CONNECTIONS_SCHEMA \
-            --silent \
             --format JSON > resultado_git_users.json
 
             jq -r '.[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' resultado_git_users.json > .github/CODEOWNERS
