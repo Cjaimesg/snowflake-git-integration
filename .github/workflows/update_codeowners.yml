@@ -5,22 +5,46 @@ on:
     - cron: '0 0 * * 1'
   workflow_dispatch:
 
+# 1. Aseguramos permisos de escritura sobre el repo
+permissions:
+  contents: write
+
 jobs:
   actualizar-codeowners:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      # 2. Hacemos checkout sin credenciales HTTP (HTTPS-token) para luego usar SSH
+      - name: Checkout del repositorio
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
 
-      # Instalación de Snowflake CLI
+      # 3. Levantamos el agente SSH con la clave privada (secret SSH_PRIVATE_KEY)
+      - name: Configurar ssh-agent
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # 4. Añadimos GitHub a known_hosts para evitar prompt de verificación
+      - name: Añadir GitHub a known_hosts
+        run: ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      # 5. Configuramos el remote para usar SSH en lugar de HTTPS
+      - name: Forzar remote SSH
+        run: |
+          git remote set-url origin git@github.com:${{ github.repository }}.git
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      # 6. Instalación de Snowflake CLI
       - name: Snowflake CLI Installation
         uses: Snowflake-Labs/snowflake-cli-action@v1.5
         with:
           cli-version: "latest"
           default-config-file-path: "config.toml"
 
+      # 7. Ejecutamos la consulta y volcamos JSON
       - name: Obtener la lista de colaboradores
         env:
           SNOWFLAKE_CONNECTIONS_ACCOUNT: ${{ secrets.SNOWFLAKE_CONNECTIONS_ACCOUNT }}
@@ -35,7 +59,7 @@ jobs:
             --temporary-connection \
             --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
             --user $SNOWFLAKE_CONNECTIONS_USER \
-            --password $SNOWFLAKE_CONNECTION_PASSWORD \
+            --password $SNOWFLAKE_CONNECTIONS_PASSWORD \
             --role $SNOWFLAKE_CONNECTIONS_ROLES \
             --warehouse $SNOWFLAKE_CONNECTION_WAREHOUSE \
             --database $SNOWFLAKE_CONNECTIONS_DATABASE \
@@ -43,30 +67,15 @@ jobs:
             --silent \
             --format JSON > resultado_git_users.json
 
-
-      - name: Configurar clave SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-      - name: Clonar repositorio por SSH
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git clone git@github.com:Cjaimesg/snowflake-git-integration.git repo
-          cd repo
-
+      # 8. Regeneramos .github/CODEOWNERS, commit y push
       - name: Actualizar CODEOWNERS
         run: |
           jq -r '.[] | "\(.FOLDER_CODEOWNER) \(.USER_GITHUB_NAME)"' resultado_git_users.json > .github/CODEOWNERS
-
           git add .github/CODEOWNERS
-              if git diff --cached --quiet; then
-                echo "Sin cambios"
-              else
-                git commit -m "Actualizar CODEOWNERS vía SSH"
-                git push origin main
-                cat .github/CODEOWNERS
-              fi
+          if git diff --cached --quiet; then
+            echo "Sin cambios"
+          else
+            git commit -m "Actualizar CODEOWNERS vía SSH"
+            git push origin main
+            cat .github/CODEOWNERS
+          fi
