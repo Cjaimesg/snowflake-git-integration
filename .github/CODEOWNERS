@@ -1,2 +1,5 @@
-backend/ @Cjaimesg
-frontend/ @otro-usuario
+/src/module1 @user1
+/src/module2 @user2
+/docs @user3
+/tests @user4
+/config @user5
