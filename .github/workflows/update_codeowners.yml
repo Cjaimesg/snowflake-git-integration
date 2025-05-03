@@ -31,7 +31,7 @@ jobs:
           SNOWFLAKE_CONNECTIONS_DATABASE: ${{ secrets.SNOWFLAKE_CONNECTIONS_DATABASE }}
           SNOWFLAKE_CONNECTIONS_SCHEMA: ${{ secrets.SNOWFLAKE_CONNECTIONS_SCHEMA }}
         run: |
-          snow sql -q "SELECT FOLDER_CODEOWNER, USER_GITHUB_NAME FROM GIT_USERS" \ 
+          snow sql -q "SELECT FOLDER_CODEOWNER, USER_GITHUB_NAME FROM GIT_USERS" \
             --temporary-connection \
             --account $SNOWFLAKE_CONNECTIONS_ACCOUNT \
             --user $SNOWFLAKE_CONNECTIONS_USER \
